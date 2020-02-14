@@ -38,6 +38,9 @@ class VideoModel
         desc = o.getString("description")
         address = o.getString("address")
 
+        //
+        //  Optionally, if the JSON entry contains a "playnext" address
+        //
         if (o.has("playnext"))
             playnext = o.getString("playnext")
         else
@@ -83,7 +86,6 @@ class VideoModel
     fun getListItemView(c: Context): LinearLayout
     {
         val layout = LinearLayout(c)
-        var tcolor: Int
 
         layout.orientation = LinearLayout.VERTICAL
         layout.layoutParams =
@@ -100,7 +102,6 @@ class VideoModel
                 {
                     text = title
                     textSize = 18f
-                    tcolor = currentTextColor
                 }
             })
 
@@ -115,38 +116,22 @@ class VideoModel
                 }
             })
 
-        val cont = LinearLayout(c)
-
-        cont.orientation = LinearLayout.VERTICAL
-        cont.layoutParams =
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-
-        cont.addView(layout)
-        cont.addView(
-            object : LinearLayout(c)
-            {
-                init
-                {
-                    layoutParams =
-                        LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT)
-
-                    minimumHeight = 1
-                    setBackgroundColor(tcolor)
-                }
-            })
-
-        layout.isClickable = true
         layout.setOnClickListener {
-            var intent = Intent(c, VideoModelActivity::class.java)
-            intent.putExtra("json", toString())
-            c.startActivity(intent)
+            watch(c)
         }
 
-        return cont
+        return layout
+    }
+
+    fun watch(c: Context)
+    {
+        val intent = Intent(c, VideoModelActivity::class.java)
+
+        intent.putExtra(
+            "json",
+            toString())
+
+        c.startActivity(intent)
     }
 
     fun getVideoView(c: Context): PlayerView

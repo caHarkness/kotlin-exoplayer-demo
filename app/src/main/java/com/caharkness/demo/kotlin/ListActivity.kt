@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.net.Uri
 import androidx.core.widget.NestedScrollView
+import com.caharkness.demo.kotlin.adapters.VideoModelAdapter
 import com.caharkness.demo.kotlin.models.VideoModel
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -50,18 +51,21 @@ class ListActivity : AppCompatActivity()
         val j = """
             [
                 {
+                    id: 0,
                     title: "Video 1",
                     description: "Description of video 1",
                     address: "https://s3.amazonaws.com/interview-quiz-stuff/tos-trailer/master.m3u8"
                 },
                 
                 {
+                    id: 1,
                     title: "Video 2",
                     description: "Description of video 2",
                     address: "https://s3.amazonaws.com/interview-quiz-stuff/tos/master.m3u8"
                 },
                 
                 {
+                    id: 2,
                     title: "Video 1 & 2",
                     description: "Play video 1 & 2 (concatenating media source)",
                     address: "https://s3.amazonaws.com/interview-quiz-stuff/tos-trailer/master.m3u8",
@@ -69,6 +73,7 @@ class ListActivity : AppCompatActivity()
                 },
                 
                 {
+                    id: 3,
                     title: "Video 2 & 1",
                     description: "Play video 2 & 1 (in reverse order)",
                     address: "https://s3.amazonaws.com/interview-quiz-stuff/tos/master.m3u8",
@@ -83,41 +88,37 @@ class ListActivity : AppCompatActivity()
         //  To show a list of clickable videos.
         //
         val a = JSONArray(bundle.getString("json"))
-        val l = LinearLayout(this)
-
-        for (i in 0 until a.length())
-        {
-            val o: JSONObject = a.getJSONObject(i)
-            val vm = VideoModel(o)
-
-            //
-            //
-            //
-            l.addView(vm.getListItemView(this))
-        }
-
-        l.orientation = LinearLayout.VERTICAL
-        l.layoutParams =
-            LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                1f)
 
         val
             toolbar = Toolbar(this)
             toolbar.setBackgroundColor(0xFFFF0000.toInt())
             toolbar.setTitleTextColor(0xFFFFFFFF.toInt())
             toolbar.setTitle("Videos")
+            toolbar.elevation = 15f
 
         val
-            nsv = NestedScrollView(this)
-            nsv.layoutParams =
+            lv = ListView(this)
+            lv.layoutParams =
                 LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     1f)
-            nsv.isFillViewport = true
-            nsv.addView(l)
+            lv.descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+            lv.adapter = VideoModelAdapter(this, a)
+            lv.setOnItemClickListener { adapterView, view, i, _ -> {
+                /*
+
+                Spending too much time figuring out why this isn't
+                Firing when I tap on an item, see VideoModel's .watch() method instead...
+
+                Toast.makeText(this, "Hello world " + i, Toast.LENGTH_LONG).show()
+
+                (lv.adapter as VideoModelAdapter)
+                    .getItemModel(i)
+                    .watch(this)
+
+                */
+            }}
 
         val
             ml = LinearLayout(this)
@@ -129,7 +130,8 @@ class ListActivity : AppCompatActivity()
                 1f)
 
             ml.addView(toolbar)
-            ml.addView(nsv)
+            ml.addView(lv)
+
 
         setContentView(ml)
     }
